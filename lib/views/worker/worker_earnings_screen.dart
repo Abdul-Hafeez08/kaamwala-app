@@ -56,8 +56,7 @@ class WorkerEarningsScreen extends ConsumerWidget {
             if (!job.scheduledDate.isBefore(weekStart)) {
               weekEarnings += job.price;
             }
-            if (job.scheduledDate.month == now.month &&
-                job.scheduledDate.year == now.year) {
+            if (!job.scheduledDate.isBefore(monthStart)) {
               monthEarnings += job.price;
             }
             // Fill daily chart data

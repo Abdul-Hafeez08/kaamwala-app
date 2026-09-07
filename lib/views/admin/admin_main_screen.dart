@@ -9,6 +9,8 @@ import 'admin_workers_screen.dart';
 import 'admin_services_screen.dart';
 import 'admin_jobs_screen.dart';
 import 'admin_complaints_screen.dart';
+import 'admin_revenue_screen.dart';
+import '../../providers/admin_provider.dart';
 import '../../providers/complaint_provider.dart';
 
 class AdminMainScreen extends ConsumerStatefulWidget {
@@ -19,7 +21,6 @@ class AdminMainScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
-  int _currentIndex = 0;
 
   final List<Widget> _screens = [
     const AdminDashboardScreen(),
@@ -45,6 +46,8 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentUserAsync = ref.watch(currentUserProvider);
     final pendingComplaintsCount = ref.watch(pendingComplaintsCountProvider);
+
+    final currentIndex = ref.watch(adminBottomNavIndexProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -152,6 +155,20 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
               },
             ),
 
+            _DrawerItem(
+              icon: Icons.analytics_rounded,
+              label: 'Revenue Analytics',
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminRevenueScreen(),
+                  ),
+                );
+              },
+            ),
+
             const Divider(height: 1, indent: 24, endIndent: 24),
 
             const Spacer(),
@@ -189,10 +206,10 @@ class _AdminMainScreenState extends ConsumerState<AdminMainScreen> {
           ],
         ),
       ),
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(index: currentIndex, children: _screens),
       bottomNavigationBar: CurvedBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        currentIndex: currentIndex,
+        onTap: (index) => ref.read(adminBottomNavIndexProvider.notifier).state = index,
         items: [
           const CurvedNavItem(
             icon: Icons.dashboard_outlined,

@@ -94,3 +94,34 @@ final workerJobsDetailProvider = FutureProvider.family<List<JobModel>, String>((
       .toList()
     ..sort((a, b) => b.scheduledDate.compareTo(a.scheduledDate));
 });
+
+/// Admin bottom navigation tab index
+final adminBottomNavIndexProvider = StateProvider<int>((ref) => 0);
+
+/// Active jobs count for today
+final activeJobsTodayProvider = FutureProvider<int>((ref) async {
+  final firestoreService = ref.read(firestoreServiceProvider);
+  final allJobs = await firestoreService.getAllJobs();
+  final now = DateTime.now();
+  return allJobs.where((j) {
+    final isTerminal = j.status == 'completed' ||
+        j.status == 'reviewed' ||
+        j.status == 'cancelled' ||
+        j.status == 'declined';
+    if (isTerminal) return false;
+
+    final isCreatedToday = j.createdAt.year == now.year &&
+        j.createdAt.month == now.month &&
+        j.createdAt.day == now.day;
+    final isScheduledToday = j.scheduledDate.year == now.year &&
+        j.scheduledDate.month == now.month &&
+        j.scheduledDate.day == now.day;
+    final isStartedToday = j.startedAt != null &&
+        j.startedAt!.year == now.year &&
+        j.startedAt!.month == now.month &&
+        j.startedAt!.day == now.day;
+
+    return isCreatedToday || isScheduledToday || isStartedToday || j.status == 'started' || j.status == 'on_the_way';
+  }).length;
+});
+

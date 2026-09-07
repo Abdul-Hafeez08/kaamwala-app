@@ -416,14 +416,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(4),
                                         ),
-                                        child: const Center(
-                                          child: Text(
-                                            'G',
-                                            style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w900,
-                                              color: Color(0xFF4285F4),
-                                            ),
+                                        child: Center(
+                                          child: Image.network(
+                                            'https://img.icons8.com/color/48/000000/google-logo.png',
+                                            width: 24,
+                                            height: 24,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return const Text(
+                                                'G',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Color(0xFF4285F4),
+                                                ),
+                                              );
+                                            },
                                           ),
                                         ),
                                       ),

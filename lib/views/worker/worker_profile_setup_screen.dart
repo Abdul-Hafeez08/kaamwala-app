@@ -274,16 +274,29 @@ class _WorkerProfileSetupScreenState extends State<WorkerProfileSetupScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _ImagePickButton(
-                          onPressed: _captureImage,
-                          icon: Icons.camera_alt_rounded,
-                          label: 'Take Live Photo',
+                    if (kIsWeb)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Open mobile app to capture live photo',
+                          style: TextStyle(
+                            color: isDark ? Colors.orange[300] : Colors.orange[800],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
-                      ],
-                    ),
+                      )
+                    else
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _ImagePickButton(
+                            onPressed: _captureImage,
+                            icon: Icons.camera_alt_rounded,
+                            label: 'Take Live Photo',
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -420,11 +433,24 @@ class _WorkerProfileSetupScreenState extends State<WorkerProfileSetupScreen> {
                           : null,
                     ),
                     const SizedBox(height: 16),
-                    _ImagePickButton(
-                      onPressed: _captureNicImage,
-                      icon: Icons.camera_alt_rounded,
-                      label: 'Capture Live NIC Photo',
-                    ),
+                    if (kIsWeb)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Open mobile app to capture live NIC photo',
+                          style: TextStyle(
+                            color: isDark ? Colors.orange[300] : Colors.orange[800],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      )
+                    else
+                      _ImagePickButton(
+                        onPressed: _captureNicImage,
+                        icon: Icons.camera_alt_rounded,
+                        label: 'Capture Live NIC Photo',
+                      ),
                   ],
                 ),
               ),
@@ -565,11 +591,36 @@ class _WorkerProfileSetupScreenState extends State<WorkerProfileSetupScreen> {
               ),
               const SizedBox(height: 40),
 
-              CustomButton(
-                text: 'Save & Continue',
-                onPressed: _submitProfile,
-                isLoading: _isLoading,
-              ),
+              if (kIsWeb)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.orange),
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.phone_iphone_rounded, color: Colors.orange, size: 32),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Please open the app on your mobile device to capture live photos and complete your account setup.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: isDark ? Colors.orange[300] : Colors.orange[800],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                CustomButton(
+                  text: 'Save & Continue',
+                  onPressed: _submitProfile,
+                  isLoading: _isLoading,
+                ),
               const SizedBox(height: 20),
             ],
           ),
