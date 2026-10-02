@@ -24,6 +24,13 @@ class WorkerListScreen extends ConsumerStatefulWidget {
 class _WorkerListScreenState extends ConsumerState<WorkerListScreen> {
   String _selectedFilter = 'Available Now';
 
+  static const _filters = [
+    {'label': 'Available Now', 'icon': Icons.circle, 'color': Colors.green},
+    {'label': 'Low Price',     'icon': Icons.attach_money, 'color': Color(0xFF4CAF50)},
+    {'label': 'Top Rated',     'icon': Icons.star_rounded, 'color': Color(0xFFFF9800)},
+    {'label': 'Nearest',       'icon': Icons.near_me_rounded, 'color': Color(0xFF2196F3)},
+  ];
+
   @override
   Widget build(BuildContext context) {
     final workersAsync = ref.watch(workersByServiceProvider(widget.serviceType));
@@ -36,28 +43,27 @@ class _WorkerListScreenState extends ConsumerState<WorkerListScreen> {
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
-              children: [
-                'Available Now',
-                'Distance',
-                'Price',
-                'Rating',
-              ].map((filter) {
-                final isSelected = _selectedFilter == filter;
+              children: _filters.map((filter) {
+                final label = filter['label'] as String;
+                final icon  = filter['icon']  as IconData;
+                final color = filter['color'] as Color;
+                final isSelected = _selectedFilter == label;
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: FilterChip(
                     selected: isSelected,
-                    label: Text(filter),
-                    onSelected: (selected) {
-                      setState(() {
-                        if (selected) _selectedFilter = filter;
-                      });
-                    },
-                    selectedColor: const Color(0xFFFF9800).withValues(alpha: 0.2),
-                    checkmarkColor: const Color(0xFFFF9800),
+                    avatar: Icon(icon, size: 16,
+                        color: isSelected ? color : Colors.grey),
+                    label: Text(label),
+                    onSelected: (_) => setState(() => _selectedFilter = label),
+                    selectedColor: color.withValues(alpha: 0.15),
+                    checkmarkColor: color,
                     labelStyle: TextStyle(
-                      color: isSelected ? const Color(0xFFFF9800) : null,
+                      color: isSelected ? color : null,
                       fontWeight: isSelected ? FontWeight.bold : null,
+                    ),
+                    side: BorderSide(
+                      color: isSelected ? color : Colors.grey.shade300,
                     ),
                   ),
                 );
@@ -74,11 +80,21 @@ class _WorkerListScreenState extends ConsumerState<WorkerListScreen> {
               List<WorkerModel> displayList = List.from(workers);
 
               if (_selectedFilter == 'Available Now') {
-                displayList = displayList.where((w) => w.availability).toList();
-              } else if (_selectedFilter == 'Rating') {
+                displayList = displayList
+                    .where((w) => w.availability)
+                    .toList();
+              } else if (_selectedFilter == 'Top Rated') {
                 displayList.sort((a, b) => b.rating.compareTo(a.rating));
-              } else if (_selectedFilter == 'Price') {
+              } else if (_selectedFilter == 'Low Price') {
                 displayList.sort((a, b) => a.hourlyRate.compareTo(b.hourlyRate));
+              } else if (_selectedFilter == 'Nearest') {
+                // Sort by location string alphabetically as a proxy;
+                // workers with empty location go last
+                displayList.sort((a, b) {
+                  if (a.location.isEmpty) return 1;
+                  if (b.location.isEmpty) return -1;
+                  return a.location.compareTo(b.location);
+                });
               }
 
               if (displayList.isEmpty) {
@@ -118,6 +134,7 @@ class _WorkerListScreenState extends ConsumerState<WorkerListScreen> {
                       final worker = displayList[index];
                       return _WorkerCard(
                         worker: worker,
+                        activeFilter: _selectedFilter,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -151,12 +168,39 @@ class _WorkerListScreenState extends ConsumerState<WorkerListScreen> {
 class _WorkerCard extends ConsumerWidget {
   final WorkerModel worker;
   final VoidCallback onTap;
+  final String activeFilter;
 
-  const _WorkerCard({required this.worker, required this.onTap});
+  const _WorkerCard({
+    required this.worker,
+    required this.onTap,
+    required this.activeFilter,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Badge shown based on active filter
+    Widget? filterBadge;
+    if (activeFilter == 'Low Price' && worker.hourlyRate > 0) {
+      filterBadge = _Badge(
+        icon: Icons.attach_money,
+        label: 'Rs ${worker.hourlyRate.toInt()}/hr',
+        color: const Color(0xFF4CAF50),
+      );
+    } else if (activeFilter == 'Top Rated' && worker.rating > 0) {
+      filterBadge = _Badge(
+        icon: Icons.star_rounded,
+        label: '${worker.rating.toStringAsFixed(1)} ★',
+        color: const Color(0xFFFF9800),
+      );
+    } else if (activeFilter == 'Nearest' && worker.location.isNotEmpty) {
+      filterBadge = _Badge(
+        icon: Icons.near_me_rounded,
+        label: worker.location,
+        color: const Color(0xFF2196F3),
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -179,7 +223,14 @@ class _WorkerCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (filterBadge != null) ...[
+                filterBadge,
+                const SizedBox(height: 10),
+              ],
+              Row(
             children: [
               Stack(
                 children: [
@@ -400,10 +451,46 @@ class _WorkerCard extends ConsumerWidget {
                     },
                   ),
                 ],
-              ),
-            ],
+              ), // close chat button Column
+            ], // close outer Row children
+          ), // close outer Row
+            ], // close Padding Column children
+          ), // close Padding Column
+        ), // close Padding
+      ), // close InkWell
+    ); // close Container
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _Badge({required this.icon, required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: color),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

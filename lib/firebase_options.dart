@@ -36,29 +36,29 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get web => FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_WEB_API_KEY'] ?? '',
+    apiKey: 'AIzaSyBvErB96xb_ityQflE8KaDPP68lE0jEF58',
     appId: dotenv.env['FIREBASE_WEB_APP_ID'] ?? '',
-    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-    projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-    authDomain: '${dotenv.env['FIREBASE_PROJECT_ID'] ?? ''}.firebaseapp.com',
-    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
+    messagingSenderId: '1081530084240',
+    projectId: 'myapp-3da2e',
+    authDomain: 'myapp-3da2e.firebaseapp.com',
+    storageBucket: 'myapp-3da2e.firebasestorage.app',
     measurementId: 'G-DXRFDRJR9Z',
   );
 
   static FirebaseOptions get android => FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_ANDROID_API_KEY'] ?? '',
-    appId: dotenv.env['FIREBASE_ANDROID_APP_ID'] ?? '',
-    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-    projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
+    apiKey: 'AIzaSyBvErB96xb_ityQflE8KaDPP68lE0jEF58',
+    appId: '1:1081530084240:android:794c18ab839126f366a115',
+    messagingSenderId: '1081530084240',
+    projectId: 'myapp-3da2e',
+    storageBucket: 'myapp-3da2e.firebasestorage.app',
   );
 
   static FirebaseOptions get ios => FirebaseOptions(
     apiKey: dotenv.env['FIREBASE_IOS_API_KEY'] ?? '',
     appId: dotenv.env['FIREBASE_IOS_APP_ID'] ?? '',
-    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-    projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
+    messagingSenderId: '1081530084240',
+    projectId: 'myapp-3da2e',
+    storageBucket: 'myapp-3da2e.firebasestorage.app',
     iosBundleId: dotenv.env['FIREBASE_IOS_BUNDLE_ID'] ?? '',
   );
 }

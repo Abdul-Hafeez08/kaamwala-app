@@ -42,6 +42,7 @@ dependencies:
   # Persistence
   shared_preferences: ^2.3.4
   flutter_dotenv: ^6.0.1
+  
 
   # URL Launcher (for maps navigation)
   url_launcher: ^6.3.1
@@ -81,3 +82,4 @@ flutter:
     - assets/logo.png
     - assets/icon/
     - .env
+
