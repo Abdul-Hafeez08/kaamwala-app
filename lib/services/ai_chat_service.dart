@@ -4,8 +4,14 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AIChatService {
-  // Read Gemini API key from .env file
-  static final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+  // Read Gemini API key safely
+  static String get _apiKey {
+    try {
+      return dotenv.env['GEMINI_API_KEY'] ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
 
   GenerativeModel? _model;
   ChatSession? _chatSession;
