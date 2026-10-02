@@ -118,27 +118,30 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
       body: Column(
         children: [
           Expanded(
-            child: messagesAsync.when(
-              data: (messages) {
-                if (messages.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.waving_hand_rounded,
-                          size: 48,
-                          color: const Color(0xFFFF9800).withValues(alpha: 0.3),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 750),
+                child: messagesAsync.when(
+                  data: (messages) {
+                    if (messages.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.waving_hand_rounded,
+                              size: 48,
+                              color: const Color(0xFFFF9800).withValues(alpha: 0.3),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Say hi!',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Say hi! ðŸ‘‹',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  );
-                }
+                      );
+                    }
                 return ListView.builder(
                   reverse: true,
                   padding: const EdgeInsets.symmetric(
@@ -217,8 +220,10 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
                   },
                 );
               },
-              loading: () => const Center(child: CustomLoadingIndicator()),
-              error: (err, _) => Center(child: SelectableText('Error: $err')),
+                  loading: () => const Center(child: CustomLoadingIndicator()),
+                  error: (err, _) => Center(child: SelectableText('Error: $err')),
+                ),
+              ),
             ),
           ),
           Container(
@@ -234,49 +239,54 @@ class _ChatRoomScreenState extends ConsumerState<ChatRoomScreen> {
               ],
             ),
             child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? const Color(0xFF1E1E1E)
-                            : const Color(0xFFF3F3F3),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: TextField(
-                        controller: _messageController,
-                        style: const TextStyle(fontSize: 15),
-                        decoration: const InputDecoration(
-                          hintText: 'Type a message...',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 750),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF1E1E1E)
+                                : const Color(0xFFF3F3F3),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: TextField(
+                            controller: _messageController,
+                            style: const TextStyle(fontSize: 15),
+                            decoration: const InputDecoration(
+                              hintText: 'Type a message...',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                            ),
+                            textInputAction: TextInputAction.send,
+                            onSubmitted: (_) => _sendMessage(),
                           ),
                         ),
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _sendMessage(),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap: _sendMessage,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFF9800),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.send_rounded,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  GestureDetector(
-                    onTap: _sendMessage,
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFF9800),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.send_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

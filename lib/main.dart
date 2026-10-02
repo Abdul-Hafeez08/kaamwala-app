@@ -11,7 +11,11 @@ import 'providers/theme_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Warning: .env file not found. App will rely on system environment variables.");
+  }
   // Quick runtime check: attempt to load the logo asset and log any error.
   try {
     await rootBundle.load('assets/logo.png');

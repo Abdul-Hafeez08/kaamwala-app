@@ -9,6 +9,8 @@ class UserModel {
   final String profileImage;
   final String address;
   final String location;
+  final double latitude;
+  final double longitude;
   final DateTime createdAt;
 
   UserModel({
@@ -20,6 +22,8 @@ class UserModel {
     this.profileImage = '',
     this.address = '',
     this.location = '',
+    this.latitude = 0.0,
+    this.longitude = 0.0,
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
@@ -33,6 +37,8 @@ class UserModel {
       'profileImage': profileImage,
       'address': address,
       'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'createdAt': Timestamp.fromDate(createdAt),
     };
   }
@@ -47,6 +53,8 @@ class UserModel {
       profileImage: map['profileImage'] ?? '',
       address: map['address'] ?? '',
       location: map['location'] ?? '',
+      latitude: (map['latitude'] ?? 0.0).toDouble(),
+      longitude: (map['longitude'] ?? 0.0).toDouble(),
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -60,6 +68,8 @@ class UserModel {
     String? profileImage,
     String? address,
     String? location,
+    double? latitude,
+    double? longitude,
     DateTime? createdAt,
   }) {
     return UserModel(
@@ -71,6 +81,8 @@ class UserModel {
       profileImage: profileImage ?? this.profileImage,
       address: address ?? this.address,
       location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       createdAt: createdAt ?? this.createdAt,
     );
   }

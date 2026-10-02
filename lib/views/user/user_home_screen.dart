@@ -46,9 +46,12 @@ class _UserHomeScreenState extends ConsumerState<UserHomeScreen> {
             ref.invalidate(userProfileProvider);
             ref.invalidate(availableServicesProvider);
           },
-          child: CustomScrollView(
-            slivers: [
-              // Custom AppBar / Header
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 850),
+              child: CustomScrollView(
+                slivers: [
+                  // Custom AppBar / Header
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -319,11 +322,16 @@ class _UserHomeScreenState extends ConsumerState<UserHomeScreen> {
                   ),
                   child: Container(
                     decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.06),
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
@@ -333,21 +341,19 @@ class _UserHomeScreenState extends ConsumerState<UserHomeScreen> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Search for a service...',
-                        hintStyle: const TextStyle(fontSize: 14),
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: isDark ? Colors.white54 : Colors.black45,
+                        ),
                         prefixIcon: const Icon(
                           Icons.search_rounded,
-                          color: Colors.grey,
+                          color: Color(0xFFFF9800),
                         ),
-                        filled: true,
-                        fillColor: isDark
-                            ? const Color(0xFF1E1E1E)
-                            : Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
-                        ),
+                        filled: false,
+                        border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                           vertical: 16,
+                          horizontal: 16,
                         ),
                       ),
                     ),
@@ -429,7 +435,9 @@ class _UserHomeScreenState extends ConsumerState<UserHomeScreen> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 

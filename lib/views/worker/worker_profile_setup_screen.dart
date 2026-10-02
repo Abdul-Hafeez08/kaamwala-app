@@ -225,9 +225,12 @@ class _WorkerProfileSetupScreenState extends State<WorkerProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Setup Your Profile')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -540,25 +543,44 @@ class _WorkerProfileSetupScreenState extends State<WorkerProfileSetupScreen> {
                   return null;
                 },
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton.icon(
-                  onPressed: _isLocating ? null : _detectCurrentLocation,
-                  icon: _isLocating
-                      ? const SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.my_location_rounded, size: 16),
-                  label: Text(
-                    _isLocating ? 'Detecting GPS...' : 'Use Current GPS Location',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFFFF9800),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Option 2: Add Google Map location (Optional but helps users find you easier)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _isLocating ? null : _detectCurrentLocation,
+                        icon: _isLocating
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.map_rounded),
+                        label: Text(_latitude != 0.0 && _longitude != 0.0
+                            ? 'Location Selected'
+                            : 'Get Current Location'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 12),
@@ -626,7 +648,9 @@ class _WorkerProfileSetupScreenState extends State<WorkerProfileSetupScreen> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 

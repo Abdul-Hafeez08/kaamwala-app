@@ -145,9 +145,12 @@ class _GeneralPostScreenState extends ConsumerState<GeneralPostScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Post to Marketplace')),
       body: servicesAsync.when(
-        data: (services) => SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
+        data: (services) => Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 640),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,6 +210,66 @@ class _GeneralPostScreenState extends ConsumerState<GeneralPostScreen> {
                   hintText: 'Where do you need the service?',
                   prefixIcon: Icons.location_on_rounded,
                   validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Add Google Map location to make worker find you easier',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            if (_latitude != 0.0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('📍 Google Map location added!')),
+                              );
+                            } else {
+                              await _fetchLocation();
+                              if (_latitude != 0.0 && mounted) {
+                                final addr = await _locationService.reverseGeocode(_latitude, _longitude);
+                                if (addr != null && _addressController.text.isEmpty) {
+                                  _addressController.text = addr;
+                                }
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('📍 Google Map location added!')),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                          icon: Icon(
+                            Icons.map_rounded,
+                            color: _latitude != 0.0 ? Colors.green : null,
+                          ),
+                          label: Text(
+                            _latitude != 0.0 && _longitude != 0.0
+                                ? '✓ Location Added'
+                                : 'Add Google Map Location',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: _latitude != 0.0 ? Colors.green : const Color(0xFF4285F4),
+                            side: BorderSide(color: _latitude != 0.0 ? Colors.green : const Color(0xFF4285F4)),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
@@ -274,22 +337,28 @@ class _GeneralPostScreenState extends ConsumerState<GeneralPostScreen> {
             ),
           ),
         ),
-        loading: () => const Center(child: CustomLoadingIndicator()),
-        error: (err, _) => Center(child: Text('Error: $err')),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isDark ? Colors.black : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
+    ),
+    loading: () => const Center(child: CustomLoadingIndicator()),
+    error: (err, _) => Center(child: Text('Error: $err')),
+  ),
+  bottomNavigationBar: Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: isDark ? Colors.black : Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 20,
+          offset: const Offset(0, -5),
         ),
-        child: SafeArea(
+      ],
+    ),
+    child: SafeArea(
+      child: Center(
+        heightFactor: 1.0,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
           child: CustomButton(
             text: 'Post Request',
             onPressed: _postToMarketplace,
@@ -297,6 +366,8 @@ class _GeneralPostScreenState extends ConsumerState<GeneralPostScreen> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }

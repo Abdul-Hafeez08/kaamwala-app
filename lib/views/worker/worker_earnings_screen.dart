@@ -135,7 +135,7 @@ class WorkerEarningsScreen extends ConsumerWidget {
                   children: [
                     Expanded(child: _buildStatCard('Today', 'Rs. ${todayEarnings.toStringAsFixed(0)}', Icons.today_rounded, const Color(0xFF4CAF50), isDark)),
                     const SizedBox(width: 12),
-                    Expanded(child: _buildStatCard('This Week', 'Rs. ${weekEarnings.toStringAsFixed(0)}', Icons.date_range_rounded, const Color(0xFF2196F3), isDark)),
+                    Expanded(child: _buildStatCard('This Week', 'Rs. ${weekEarnings.toStringAsFixed(0)}', Icons.calendar_view_week_rounded, const Color(0xFFFF9800), isDark)),
                     const SizedBox(width: 12),
                     Expanded(child: _buildStatCard('Total Jobs', completedJobs.length.toString(), Icons.check_circle_rounded, const Color(0xFF9C27B0), isDark)),
                   ],

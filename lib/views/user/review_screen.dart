@@ -218,10 +218,16 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
           ],
         ),
         child: SafeArea(
-          child: CustomButton(
-            text: 'Submit Review',
-            onPressed: _submitReview,
-            isLoading: _isLoading,
+          child: Center(
+            heightFactor: 1.0,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: CustomButton(
+                text: 'Submit Review',
+                onPressed: _submitReview,
+                isLoading: _isLoading,
+              ),
+            ),
           ),
         ),
       ),

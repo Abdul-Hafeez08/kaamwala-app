@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
-import '../../providers/theme_provider.dart';
 import '../auth/login_screen.dart';
 import 'user_edit_profile_screen.dart';
 import 'user_complaint_screen.dart';
@@ -37,34 +36,35 @@ class UserProfileScreen extends ConsumerWidget {
             return const Center(child: Text('Unable to load profile'));
           }
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
               children: [
                 // Profile Header Card
                 Container(
                   padding: const EdgeInsets.all(32),
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-                    borderRadius: BorderRadius.circular(36),
+                    color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFFFFD54F).withValues(alpha: 0.6),
-                        blurRadius: 40,
-                        spreadRadius: 12,
-                        offset: const Offset(0, 15),
+                        color: const Color(0xFFFF9800).withValues(alpha: isDark ? 0.12 : 0.1),
+                        blurRadius: 28,
+                        offset: const Offset(0, 10),
                       ),
                       BoxShadow(
-                        color: const Color(0xFFFF9800).withValues(alpha: 0.3),
-                        blurRadius: 60,
-                        spreadRadius: 4,
-                        offset: const Offset(0, 25),
+                        color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                     border: Border.all(
-                      color: const Color(0xFFFFD54F).withValues(alpha: 0.5),
-                      width: 1.5,
+                      color: const Color(0xFFFF9800).withValues(alpha: isDark ? 0.25 : 0.2),
+                      width: 1.2,
                     ),
                   ),
                   child: Column(
@@ -187,50 +187,18 @@ class UserProfileScreen extends ConsumerWidget {
                       title: 'Home Address',
                       subtitle: user.address.isEmpty ? 'Not set' : user.address,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
-                _SettingsGroup(
-                  title: 'Appearance',
-                  children: [
-                    ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF9800).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                          color: const Color(0xFFFF9800),
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(
-                        isDark ? 'Dark Mode' : 'Light Mode',
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        isDark ? 'Dark theme enabled' : 'Light theme enabled',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? Colors.white38 : Colors.black38,
-                        ),
-                      ),
-                      trailing: Switch(
-                        value: isDark,
-                        activeThumbColor: const Color(0xFFFF9800),
-                        onChanged: (val) {
-                          ref.read(themeModeProvider.notifier).setThemeMode(
-                                val ? ThemeMode.dark : ThemeMode.light,
-                              );
-                        },
-                      ),
+                    _SettingsTile(
+                      icon: Icons.map_rounded,
+                      title: 'Google Map Location',
+                      subtitle: user.latitude != 0.0 && user.longitude != 0.0
+                          ? '✓ Location saved'
+                          : 'Not set — Edit profile to add',
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
+
+
 
                 _SettingsGroup(
                   title: 'Account',
@@ -275,7 +243,9 @@ class UserProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 40),
               ],
             ),
-          );
+          ),
+        ),
+      );
         },
         loading: () => const Center(child: CustomLoadingIndicator()),
         error: (err, _) => Center(child: Text('Error: $err')),
@@ -402,7 +372,8 @@ class _SettingsTile extends StatelessWidget {
         subtitle,
         style: TextStyle(
           fontSize: 12,
-          color: isDark ? Colors.white38 : Colors.black38,
+          fontWeight: FontWeight.w500,
+          color: isDark ? Colors.white60 : Colors.black54,
         ),
       ),
       trailing: onTap != null

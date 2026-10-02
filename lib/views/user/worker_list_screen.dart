@@ -108,23 +108,28 @@ class _WorkerListScreenState extends ConsumerState<WorkerListScreen> {
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: displayList.length,
-                itemBuilder: (context, index) {
-                  final worker = displayList[index];
-                  return _WorkerCard(
-                    worker: worker,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => WorkerDetailScreen(worker: worker),
-                        ),
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 750),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: displayList.length,
+                    itemBuilder: (context, index) {
+                      final worker = displayList[index];
+                      return _WorkerCard(
+                        worker: worker,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => WorkerDetailScreen(worker: worker),
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
+                  ),
+                ),
               );
             },
             loading: () => const Center(child: CustomLoadingIndicator()),

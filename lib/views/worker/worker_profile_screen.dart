@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/worker_controller.dart';
 import '../../providers/worker_provider.dart';
-import '../../providers/theme_provider.dart';
 import '../../services/location_service.dart';
 import '../../services/firestore_service.dart';
 import '../auth/login_screen.dart';
@@ -242,60 +241,7 @@ class WorkerProfileScreen extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
-                _buildInfoSection(context, 'Appearance', [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFF9800).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                            size: 20,
-                            color: const Color(0xFFFF9800),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Theme Mode',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark ? Colors.white38 : Colors.black38,
-                                ),
-                              ),
-                              Text(
-                                isDark ? 'Dark Mode' : 'Light Mode',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Switch(
-                          value: isDark,
-                          activeThumbColor: const Color(0xFFFF9800),
-                          onChanged: (val) {
-                            ref.read(themeModeProvider.notifier).setThemeMode(
-                                  val ? ThemeMode.dark : ThemeMode.light,
-                                );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ]),
 
-                const SizedBox(height: 40),
 
                 SizedBox(
                   width: double.infinity,
@@ -416,15 +362,17 @@ class _DetailRow extends StatelessWidget {
                   label,
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? Colors.white38 : Colors.black38,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.white60 : Colors.black54,
                   ),
                 ),
+                const SizedBox(height: 2),
                 Text(
                   value.isEmpty ? 'Not Provided' : value,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: color,
+                    color: color ?? (isDark ? Colors.white : Colors.black87),
                   ),
                 ),
               ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/job_model.dart';
 import '../../providers/user_provider.dart';
 import '../../controllers/booking_controller.dart';
@@ -118,12 +120,17 @@ class _BookingList extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: bookings.length,
-      itemBuilder: (context, index) {
-        return _BookingCard(booking: bookings[index], type: type);
-      },
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 750),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: bookings.length,
+          itemBuilder: (context, index) {
+            return _BookingCard(booking: bookings[index], type: type);
+          },
+        ),
+      ),
     );
   }
 }
@@ -213,21 +220,23 @@ class _BookingCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 24),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-          borderRadius: BorderRadius.circular(32),
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: isDark 
-                  ? Colors.black.withValues(alpha: 0.4) 
-                  : color.withValues(alpha: 0.25),
-              blurRadius: 30,
-              spreadRadius: 2,
-              offset: const Offset(0, 10),
+              color: color.withValues(alpha: isDark ? 0.12 : 0.08),
+              blurRadius: 18,
+              offset: const Offset(0, 6),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
           ],
           border: Border.all(
-            color: isDark ? color.withValues(alpha: 0.2) : color.withValues(alpha: 0.1),
-            width: 1.5,
+            color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+            width: 1,
           ),
         ),
         child: Padding(
@@ -413,6 +422,53 @@ class _BookingCard extends StatelessWidget {
                     ),
                     child: const Text('Cancel Booking'),
                   ),
+                ),
+              ],
+              // See Worker on Google Maps button
+              if (type == 'active' && booking.workerId.isNotEmpty &&
+                  (booking.status == 'accepted' || booking.status == 'on_the_way' || booking.status == 'working')) ...[
+                const SizedBox(height: 12),
+                FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection('workers')
+                      .doc(booking.workerId)
+                      .get(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData || !snapshot.data!.exists) {
+                      return const SizedBox.shrink();
+                    }
+                    final workerData = snapshot.data!.data() as Map<String, dynamic>;
+                    final wLat = (workerData['latitude'] ?? 0.0).toDouble();
+                    final wLng = (workerData['longitude'] ?? 0.0).toDouble();
+                    if (wLat == 0.0 && wLng == 0.0) return const SizedBox.shrink();
+
+                    return SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final Uri mapUri = Uri.parse(
+                            'https://www.google.com/maps/dir/?api=1&destination=$wLat,$wLng',
+                          );
+                          if (await canLaunchUrl(mapUri)) {
+                            await launchUrl(mapUri, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        icon: const Icon(Icons.map_rounded, size: 18),
+                        label: const Text(
+                          'See Worker on Google Maps',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF4285F4),
+                          side: const BorderSide(color: Color(0xFF4285F4)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
               if (type == 'marketplace' && booking.status == 'open') ...[

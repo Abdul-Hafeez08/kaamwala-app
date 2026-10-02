@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "1081530084240",
+    "project_id": "myapp-3da2e",
+    "storage_bucket": "myapp-3da2e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1081530084240:android:794c18ab839126f366a115",
+        "android_client_info": {
+          "package_name": "com.example.breathesafe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvErB96xb_ityQflE8KaDPP68lE0jEF58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1081530084240:android:cfaddf194d4494a366a115",
+        "android_client_info": {
+          "package_name": "com.example.firebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvErB96xb_ityQflE8KaDPP68lE0jEF58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1081530084240:android:a88d9fdf6e3c643166a115",
+        "android_client_info": {
+          "package_name": "com.example.kaamwala"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBvErB96xb_ityQflE8KaDPP68lE0jEF58"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

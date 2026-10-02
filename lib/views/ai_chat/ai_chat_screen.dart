@@ -7,6 +7,7 @@ import '../../services/worker_ranking_service.dart';
 import '../../services/ai_concierge_service.dart';
 import '../user/worker_detail_screen.dart';
 import '../user/general_post_screen.dart';
+import '../user/booking_screen.dart';
 
 class AIChatScreen extends ConsumerStatefulWidget {
   const AIChatScreen({super.key});
@@ -125,11 +126,14 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
         children: [
           // Messages List
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              itemCount:
-                  chatState.messages.length + (chatState.isLoading ? 1 : 0),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  itemCount:
+                      chatState.messages.length + (chatState.isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 // Show typing indicator at the end if loading
                 if (index == chatState.messages.length && chatState.isLoading) {
@@ -165,20 +169,25 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
               },
             ),
           ),
+        ),
+      ),
 
-          // Input Area
-          Container(
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
+      // Input Area
+      Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
             ),
-            child: SafeArea(
+          ],
+        ),
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
                 child: Row(
@@ -235,9 +244,11 @@ class _AIChatScreenState extends ConsumerState<AIChatScreen> {
               ),
             ),
           ),
-        ],
+        ),
       ),
-    );
+    ],
+  ),
+);
   }
 }
 
@@ -570,9 +581,12 @@ class _RankedWorkersList extends ConsumerWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {
-                          ref
-                              .read(aiChatProvider.notifier)
-                              .selectWorkerToBook(ranked, currentUser);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BookingScreen(worker: worker),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFFF9800),

@@ -64,10 +64,13 @@ class ChatListScreen extends ConsumerWidget {
             );
           }
 
-          return ListView.builder(
-            itemCount: chats.length,
-            padding: const EdgeInsets.all(16),
-            itemBuilder: (context, index) {
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 750),
+              child: ListView.builder(
+                itemCount: chats.length,
+                padding: const EdgeInsets.all(16),
+                itemBuilder: (context, index) {
               final chat = chats[index];
               final title = isWorker ? chat.userName : chat.workerName;
               final image = isWorker ? chat.userImage : chat.workerImage;
@@ -171,8 +174,8 @@ class ChatListScreen extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: unreadCount > 0
-                          ? (isDark ? Colors.white70 : Colors.black87)
-                          : (isDark ? Colors.white38 : Colors.black38),
+                          ? (isDark ? Colors.white : Colors.black87)
+                          : (isDark ? Colors.white60 : Colors.black54),
                       fontWeight: unreadCount > 0
                           ? FontWeight.bold
                           : FontWeight.normal,
@@ -185,8 +188,9 @@ class ChatListScreen extends ConsumerWidget {
                       Text(
                         _formatTime(chat.lastMessageTime),
                         style: TextStyle(
-                          color: isDark ? Colors.white38 : Colors.black38,
+                          color: isDark ? Colors.white60 : Colors.black54,
                           fontSize: 11,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       if (unreadCount > 0) ...[
@@ -215,7 +219,9 @@ class ChatListScreen extends ConsumerWidget {
                 ),
               );
             },
-          );
+          ),
+        ),
+      );
         },
         loading: () => const Center(child: CustomLoadingIndicator()),
         error: (err, _) => Center(child: SelectableText('Error: $err')),

@@ -207,12 +207,15 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     );
                   },
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(32),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                      child: Container(
-                        padding: const EdgeInsets.all(28),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 480),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(32),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 30),
                         decoration: BoxDecoration(
                           color: isDark
                               ? Colors.white.withValues(alpha: 0.05)
@@ -529,10 +532,12 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
           ),
-        ],
+        ),
       ),
-    );
-  }
+    ],
+  ),
+);
+}
 
   Widget _buildImagePickerButton({
     required IconData icon,

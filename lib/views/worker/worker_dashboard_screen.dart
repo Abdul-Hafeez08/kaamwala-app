@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/worker_provider.dart';
-import '../../providers/theme_provider.dart';
 import 'worker_job_requests_screen.dart';
 import 'worker_active_jobs_screen.dart';
 import 'worker_completed_jobs_screen.dart';
 import 'worker_earnings_screen.dart';
-import 'worker_profile_screen.dart';
 import 'find_jobs_screen.dart';
 import '../chat/chat_list_screen.dart';
 import '../ai_chat/ai_chat_screen.dart';
 import '../../providers/chat_provider.dart';
 import '../widgets/curved_bottom_nav.dart';
+import '../widgets/worker_drawer.dart';
 import 'package:kaamwala/views/widgets/custom_loading_indicator.dart';
 import '../../controllers/worker_controller.dart';
 
@@ -31,7 +30,6 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
     WorkerJobRequestsScreen(),
     WorkerActiveJobsScreen(),
     WorkerEarningsScreen(),
-    WorkerProfileScreen(),
   ];
 
   @override
@@ -58,7 +56,6 @@ class _WorkerDashboardScreenState extends ConsumerState<WorkerDashboardScreen> {
           CurvedNavItem(icon: Icons.assignment_outlined, activeIcon: Icons.assignment_rounded, label: 'Requests'),
           CurvedNavItem(icon: Icons.work_outline_rounded, activeIcon: Icons.work_rounded, label: 'Active'),
           CurvedNavItem(icon: Icons.account_balance_wallet_outlined, activeIcon: Icons.account_balance_wallet_rounded, label: 'Earnings'),
-          CurvedNavItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
         ],
       ),
     );
@@ -72,7 +69,6 @@ class _DashboardHome extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final workerStream = ref.watch(workerProfileStreamProvider);
     final jobsAsync = ref.watch(workerJobsStreamProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return workerStream.when(
       data: (worker) {
@@ -89,26 +85,10 @@ class _DashboardHome extends ConsumerWidget {
             : 'Provider';
 
         return Scaffold(
+          drawer: const WorkerDrawer(),
           appBar: AppBar(
             title: const Text('Kaamwala', style: TextStyle(fontWeight: FontWeight.w900)),
             actions: [
-              // Theme Toggle Button (☀️ / 🌙)
-              Container(
-                margin: const EdgeInsets.only(right: 4),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                    color: const Color(0xFFFF9800),
-                    size: 20,
-                  ),
-                  tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-                  onPressed: () => ref.read(themeModeProvider.notifier).toggle(),
-                ),
-              ),
               Consumer(
                 builder: (context, ref, child) {
                   final unreadCount = ref.watch(totalUnreadCountWorkerProvider);
@@ -278,21 +258,28 @@ class _DashboardHome extends ConsumerWidget {
     final WorkerController workerController = WorkerController();
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-        borderRadius: BorderRadius.circular(36),
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: (isAvailable ? const Color(0xFF4CAF50) : Colors.grey).withValues(alpha: isDark ? 0.3 : 0.2),
-            blurRadius: 30,
-            spreadRadius: 2,
-            offset: const Offset(0, 10),
+            color: (isAvailable ? const Color(0xFF4CAF50) : const Color(0xFFFF9800))
+                .withValues(alpha: isDark ? 0.14 : 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(
-          color: isAvailable ? const Color(0xFF4CAF50).withValues(alpha: 0.5) : (isDark ? Colors.white10 : Colors.black12),
-          width: 1.5,
+          color: isAvailable
+              ? const Color(0xFF4CAF50).withValues(alpha: 0.35)
+              : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06)),
+          width: 1.2,
         ),
       ),
       child: Row(
@@ -459,21 +446,23 @@ class _DashboardHome extends ConsumerWidget {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1A1A1A) : Colors.white,
-            borderRadius: BorderRadius.circular(28),
+            color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: isDark 
-                    ? Colors.black.withValues(alpha: 0.4) 
-                    : const Color(0xFFFF9800).withValues(alpha: 0.15),
-                blurRadius: 25,
-                spreadRadius: 2,
-                offset: const Offset(0, 8),
+                color: const Color(0xFFFF9800).withValues(alpha: isDark ? 0.08 : 0.06),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
             ],
             border: Border.all(
-              color: isDark ? Colors.white10 : const Color(0xFFFF9800).withValues(alpha: 0.2),
-              width: 1.5,
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06),
+              width: 1,
             ),
           ),
           child: Row(

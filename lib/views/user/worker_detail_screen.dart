@@ -20,8 +20,11 @@ class WorkerDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0D0D0D) : const Color(0xFFF5F5F5),
-      body: CustomScrollView(
-        slivers: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: CustomScrollView(
+            slivers: [
           // Hero Header with gradient overlay
           SliverToBoxAdapter(
             child: Stack(
@@ -366,20 +369,26 @@ class WorkerDetailScreen extends ConsumerWidget {
           const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
       ),
-      bottomNavigationBar: worker.availability
-          ? Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0D0D0D) : Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, -8),
-                  ),
-                ],
+    ),
+  ),
+  bottomNavigationBar: worker.availability
+      ? Container(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0D0D0D) : Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, -8),
               ),
-              child: SafeArea(
+            ],
+          ),
+          child: SafeArea(
+            child: Center(
+              heightFactor: 1.0,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 800),
                 child: CustomButton(
                   text: 'Book Service Now',
                   onPressed: () {
@@ -392,9 +401,11 @@ class WorkerDetailScreen extends ConsumerWidget {
                   },
                 ),
               ),
-            )
-          : null,
-    );
+            ),
+          ),
+        )
+      : null,
+);
   }
 }
 

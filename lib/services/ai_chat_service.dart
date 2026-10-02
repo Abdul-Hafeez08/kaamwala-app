@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AIChatService {
-  // Replace with your real Gemini API key if you have one; otherwise the smart built-in engine answers all queries.
-  static const String _apiKey = 'YOUR_GEMINI_API_KEY';
+  // Read Gemini API key from .env file
+  static final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
 
   GenerativeModel? _model;
   ChatSession? _chatSession;
@@ -16,7 +18,7 @@ class AIChatService {
     if (_apiKey.isNotEmpty && _apiKey != 'YOUR_GEMINI_API_KEY') {
       try {
         _model = GenerativeModel(
-          model: 'gemini-2.0-flash',
+          model: 'gemini-1.5-flash',
           apiKey: _apiKey,
           systemInstruction: Content.system(_systemPrompt),
           generationConfig: GenerationConfig(
@@ -25,10 +27,8 @@ class AIChatService {
           ),
         );
         _chatSession = _model?.startChat();
-      } catch (_) {
-        // If Gemini initialization fails, log for debugging and fall back
-        // to the built-in response engine.
-        debugPrint('AIChatService: failed to initialize Gemini model');
+      } catch (e) {
+        debugPrint('AIChatService: failed to initialize Gemini model: $e');
         _model = null;
         _chatSession = null;
       }
@@ -45,22 +45,32 @@ About Kaamwala:
 - Pricing: Set by each worker (Fixed quote or Hourly rate).
 
 Instructions:
+- Remember previous context and answers given during the ongoing conversation.
 - If user speaks Urdu (اردو), reply in fluent polite Urdu.
 - If user speaks Roman Urdu (e.g. "booking karni hai"), reply in helpful Roman Urdu.
 - If user speaks English, reply in clear polite English.
 - Keep responses concise (2 to 4 sentences) and add relevant emojis.
 ''';
 
-  Future<String> sendMessage(String userMessage) async {
+  Future<String> sendMessage(
+    String userMessage, {
+    List<Map<String, dynamic>> history = const [],
+    String? additionalContext,
+  }) async {
     final cleanMsg = userMessage.trim();
-    if (cleanMsg.isEmpty)
+    if (cleanMsg.isEmpty) {
       return 'Please ask a question! / براہ کرم اپنا سوال لکھیں۔';
+    }
 
-    // If real Gemini API key is configured, try calling it first
+    // If real Gemini API key is configured, try calling it with session
     if (_chatSession != null) {
       try {
+        final prompt = additionalContext != null && additionalContext.isNotEmpty
+            ? "BACKGROUND APP DATA (Use this data to answer the user's query if relevant):\n$additionalContext\n\nUser Query:\n$cleanMsg"
+            : cleanMsg;
+
         final response = await _chatSession!.sendMessage(
-          Content.text(cleanMsg),
+          Content.text(prompt),
         );
         if (response.text != null && response.text!.trim().isNotEmpty) {
           return response.text!.trim();
@@ -76,14 +86,17 @@ Instructions:
     await Future.delayed(
       const Duration(milliseconds: 500),
     ); // natural typing feel
-    return _generateSmartResponse(cleanMsg);
+    return _generateSmartResponse(cleanMsg, history: history);
   }
 
   void resetChat() {
     _initGemini();
   }
 
-  String _generateSmartResponse(String input) {
+  String _generateSmartResponse(
+    String input, {
+    List<Map<String, dynamic>> history = const [],
+  }) {
     final lower = input.toLowerCase();
 
     // 1. Language Detection & Greetings (English, Roman Urdu, Urdu Script)

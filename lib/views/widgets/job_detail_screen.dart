@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../models/job_model.dart';
 import '../../controllers/worker_controller.dart';
 
@@ -20,9 +21,12 @@ class JobDetailScreen extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w900),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Card
@@ -163,6 +167,35 @@ class JobDetailScreen extends StatelessWidget {
                     title: 'Address',
                     value: job.address.isNotEmpty ? job.address : job.location,
                   ),
+                  if (job.latitude != 0.0 && job.longitude != 0.0) ...[
+                    const Divider(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final Uri mapUri = Uri.parse(
+                            'https://www.google.com/maps/dir/?api=1&destination=${job.latitude},${job.longitude}',
+                          );
+                          if (await canLaunchUrl(mapUri)) {
+                            await launchUrl(mapUri, mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        icon: const Icon(Icons.map_rounded, size: 18),
+                        label: const Text(
+                          'Navigate via Google Maps',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF4285F4),
+                          side: const BorderSide(color: Color(0xFF4285F4)),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -415,7 +448,9 @@ class JobDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _buildSectionCard({required bool isDark, required Widget child}) {

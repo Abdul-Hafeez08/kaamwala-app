@@ -170,7 +170,47 @@ class AIChatNotifier extends StateNotifier<AIChatState> {
         return;
       }
 
-      final response = await _chatService.sendMessage(text.trim());
+      // Build recent conversation history for memory context (last 6 messages)
+      final recentHistory = state.messages
+          .where((m) => m.text.isNotEmpty)
+          .take(6)
+          .map((m) => {
+                'role': m.isUser ? 'user' : 'model',
+                'text': m.text,
+              })
+          .toList();
+
+      // Build dynamic context with all workers and their reviews
+      String workersContext = 'Here is the current database of all workers in Kaamwala app:\n\n';
+      try {
+        final allWorkers = await _firestoreService.getAllWorkers();
+        for (final w in allWorkers) {
+          final reviews = await _firestoreService.getWorkerReviews(w.workerId);
+          workersContext += 'Worker Name: ${w.name}\n';
+          workersContext += 'Service: ${w.serviceType}\n';
+          workersContext += 'Experience: ${w.experience}\n';
+          workersContext += 'Rating: ${w.rating}\n';
+          workersContext += 'Hourly Rate: Rs. ${w.hourlyRate}\n';
+          
+          if (reviews.isNotEmpty) {
+            workersContext += 'Reviews:\n';
+            for (final r in reviews) {
+              workersContext += '- Rating: ${r.rating}, Review: "${r.review}"\n';
+            }
+          } else {
+            workersContext += 'Reviews: No reviews yet.\n';
+          }
+          workersContext += '\n';
+        }
+      } catch (e) {
+        debugPrint('Error fetching worker context: $e');
+      }
+
+      final response = await _chatService.sendMessage(
+        text.trim(),
+        history: recentHistory,
+        additionalContext: workersContext,
+      );
       final aiMessage = AIChatMessage(text: response, isUser: false);
       await _firestoreService.addAiMessageForUser(
         userId: uid,

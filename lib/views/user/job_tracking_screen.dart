@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/job_model.dart';
 import '../../providers/user_provider.dart';
 
@@ -187,6 +189,53 @@ class JobTrackingScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
+                      const SizedBox(height: 24),
+                      // Navigate to Worker via Google Maps
+                      if (currentJob.workerId.isNotEmpty) ...[
+                        FutureBuilder<DocumentSnapshot>(
+                          future: FirebaseFirestore.instance
+                              .collection('workers')
+                              .doc(currentJob.workerId)
+                              .get(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData || !snapshot.data!.exists) {
+                              return const SizedBox.shrink();
+                            }
+                            final workerData = snapshot.data!.data() as Map<String, dynamic>;
+                            final wLat = (workerData['latitude'] ?? 0.0).toDouble();
+                            final wLng = (workerData['longitude'] ?? 0.0).toDouble();
+                            if (wLat == 0.0 && wLng == 0.0) return const SizedBox.shrink();
+
+                            return SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  final Uri mapUri = Uri.parse(
+                                    'https://www.google.com/maps/dir/?api=1&destination=$wLat,$wLng',
+                                  );
+                                  if (await canLaunchUrl(mapUri)) {
+                                    await launchUrl(mapUri, mode: LaunchMode.externalApplication);
+                                  }
+                                },
+                                icon: const Icon(Icons.map_rounded),
+                                label: const Text(
+                                  'See Worker on Google Maps',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4285F4),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ],
                   ),
                 ),

@@ -8,6 +8,7 @@ import '../../services/cloudinary_service.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_loading_indicator.dart';
+import '../../services/location_service.dart';
 
 class UserEditProfileScreen extends StatefulWidget {
   final UserModel user;
@@ -27,6 +28,7 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
 
   final UserController _userController = UserController();
   final CloudinaryService _cloudinaryService = CloudinaryService();
+  final LocationService _locationService = LocationService();
   final ImagePicker _picker = ImagePicker();
 
   String _profileImageUrl = '';
@@ -34,6 +36,10 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
   Uint8List? _webImageBytes;
   bool _isLoading = false;
   bool _isUploadingImage = false;
+  bool _isFetchingLocation = false;
+  
+  double _latitude = 0.0;
+  double _longitude = 0.0;
 
   @override
   void initState() {
@@ -43,6 +49,37 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
     _addressController = TextEditingController(text: widget.user.address);
     _locationController = TextEditingController(text: widget.user.location);
     _profileImageUrl = widget.user.profileImage;
+    _latitude = widget.user.latitude;
+    _longitude = widget.user.longitude;
+  }
+
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isFetchingLocation = true);
+    try {
+      final position = await _locationService.getCurrentPosition();
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+      });
+      // Optionally reverse geocode to fill in city
+      final city = await _locationService.reverseGeocode(position.latitude, position.longitude);
+      if (city != null) {
+        _locationController.text = city;
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location fetched successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to get location: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isFetchingLocation = false);
+    }
   }
 
   @override
@@ -106,6 +143,8 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
         'phone': _phoneController.text.trim(),
         'address': _addressController.text.trim(),
         'location': _locationController.text.trim(),
+        'latitude': _latitude,
+        'longitude': _longitude,
         'profileImage': _profileImageUrl,
       });
 
@@ -140,9 +179,12 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
           key: _formKey,
           child: Column(
             children: [
@@ -243,6 +285,47 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
                 hintText: 'House #, Street, Area',
                 prefixIcon: Icons.home_rounded,
               ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Option 2: Add Google Map location (Optional but helps workers find you easier)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _isFetchingLocation ? null : _getCurrentLocation,
+                        icon: _isFetchingLocation
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.map_rounded),
+                        label: Text(_latitude != 0.0 && _longitude != 0.0
+                            ? 'Location Selected'
+                            : 'Get Current Location'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               CustomTextField(
                 controller: _locationController,
                 label: 'City / Region',
@@ -254,19 +337,25 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: isDark ? Colors.black : Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
+    ),
+  ),
+  bottomNavigationBar: Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: isDark ? Colors.black : Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 20,
+          offset: const Offset(0, -5),
         ),
-        child: SafeArea(
+      ],
+    ),
+    child: SafeArea(
+      child: Center(
+        heightFactor: 1.0,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
           child: CustomButton(
             text: 'Save Changes',
             onPressed: _saveProfile,
@@ -274,7 +363,9 @@ class _UserEditProfileScreenState extends State<UserEditProfileScreen> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
 
