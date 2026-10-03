@@ -116,10 +116,13 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _completedJobs.isEmpty
               ? const Center(child: Text('No completed jobs yet.'))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isWide = constraints.maxWidth > 800;
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(horizontal: isWide ? 24 : 16, vertical: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Total Revenue Card
                       Container(
@@ -155,32 +158,48 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                       ),
                       const SizedBox(height: 32),
 
-                      // Temporal Chart
-                      Text(
-                        'Revenue Trend ($_timeframe)',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 250,
-                        child: _buildTemporalChart(isDark),
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // Worker Chart
-                      const Text(
-                        'Revenue by Worker',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 300,
-                        child: _buildWorkerChart(isDark),
+                      isWide ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Revenue Trend ($_timeframe)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 16),
+                                SizedBox(height: 300, child: _buildTemporalChart(isDark)),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('Revenue by Worker', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 16),
+                                SizedBox(height: 300, child: _buildWorkerChart(isDark)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ) : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Revenue Trend ($_timeframe)', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 16),
+                          SizedBox(height: 250, child: _buildTemporalChart(isDark)),
+                          const SizedBox(height: 40),
+                          const Text('Revenue by Worker', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 16),
+                          SizedBox(height: 300, child: _buildWorkerChart(isDark)),
+                        ],
                       ),
                     ],
                   ),
-                ),
+                );
+              },
+            ),
     );
   }
 

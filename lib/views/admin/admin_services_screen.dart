@@ -65,15 +65,24 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
               );
             }
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: services.length,
-              itemBuilder: (context, index) {
-                final service = services[index];
-                final isHardcoded = service.id.isEmpty;
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isWide = constraints.maxWidth > 800;
+                return GridView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: isWide ? 24 : 16, vertical: 16),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: isWide ? 2 : 1,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    mainAxisExtent: 80,
+                  ),
+                  itemCount: services.length,
+                  itemBuilder: (context, index) {
+                    final service = services[index];
+                    final isHardcoded = service.id.isEmpty;
 
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
+                    return Container(
+                      margin: EdgeInsets.zero,
                   decoration: BoxDecoration(
                     color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                     borderRadius: BorderRadius.circular(24),
@@ -138,11 +147,13 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                             ),
                             onPressed: () => _deleteService(service.id),
                           ),
-                  ),
-                );
-              },
-            );
-          },
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
           loading: () => const Center(child: CustomLoadingIndicator()),
           error: (err, stack) => Center(
             child: SelectableText(

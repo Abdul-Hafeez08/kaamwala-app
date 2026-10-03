@@ -40,15 +40,24 @@ class AdminComplaintsScreen extends ConsumerWidget {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: complaints.length,
-            itemBuilder: (context, index) {
-              final complaint = complaints[index];
-              final isResolved = complaint.status == 'resolved';
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 800;
+              return GridView.builder(
+                padding: EdgeInsets.symmetric(horizontal: isWide ? 24 : 16, vertical: 16),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isWide ? 2 : 1,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  mainAxisExtent: 260,
+                ),
+                itemCount: complaints.length,
+                itemBuilder: (context, index) {
+                  final complaint = complaints[index];
+                  final isResolved = complaint.status == 'resolved';
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
+                  return Container(
+                    margin: EdgeInsets.zero,
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -179,12 +188,14 @@ class AdminComplaintsScreen extends ConsumerWidget {
                         ),
                       ],
                     ],
+                    ),
                   ),
-                ),
-              );
-            },
-          );
-        },
+                );
+                  },
+                );
+              },
+            );
+          },
         loading: () => const Center(child: CustomLoadingIndicator()),
         error: (err, _) => Center(child: SelectableText('Error: $err')),
       ),

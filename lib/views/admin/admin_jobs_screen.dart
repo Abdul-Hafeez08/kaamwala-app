@@ -107,13 +107,22 @@ class _JobList extends ConsumerWidget {
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(20),
-            itemCount: jobs.length,
-            itemBuilder: (context, index) {
-              final job = jobs[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 800;
+              return GridView.builder(
+                padding: EdgeInsets.symmetric(horizontal: isWide ? 24 : 16, vertical: 16),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isWide ? 2 : 1,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  mainAxisExtent: 180,
+                ),
+                itemCount: jobs.length,
+                itemBuilder: (context, index) {
+                  final job = jobs[index];
+                  return Padding(
+                    padding: EdgeInsets.zero,
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -310,6 +319,8 @@ class _JobList extends ConsumerWidget {
                     ),
                   ),
                 ),
+              );
+                },
               );
             },
           );

@@ -30,11 +30,12 @@ class AdminDashboardScreen extends ConsumerWidget {
           ref.invalidate(totalPlatformVolumeProvider);
           ref.invalidate(currentMonthJobsCountProvider);
         },
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: ListView(
-              padding: const EdgeInsets.all(24),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth > 700;
+            return ListView(
+              padding: EdgeInsets.symmetric(
+                  horizontal: isWide ? 24 : 16, vertical: 16),
               children: [
                 // Header
                 Column(
@@ -190,107 +191,134 @@ class AdminDashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // 3. Platform Stats Cards
-                Column(
-                  children: [
-                    // Stat 1: Total Users
-                    _buildStatCard(
-                      context: context,
-                      title: 'Total Users',
-                      subtitle: 'Registered customer accounts',
-                      icon: Icons.people_alt_rounded,
-                      color: const Color(0xFF2196F3),
-                      valueAsync: allUsersAsync.whenData(
-                        (users) => users.length.toString(),
-                      ),
-                      onTap: () {
-                        ref.read(adminBottomNavIndexProvider.notifier).state = 1;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Stat 2: Total Workers
-                    _buildStatCard(
-                      context: context,
-                      title: 'Total Workers',
-                      subtitle: 'Registered service providers',
-                      icon: Icons.engineering_rounded,
-                      color: const Color(0xFF9C27B0),
-                      valueAsync: allWorkersAsync.whenData(
-                        (workers) => workers.length.toString(),
-                      ),
-                      onTap: () {
-                        ref.read(adminBottomNavIndexProvider.notifier).state = 2;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Stat 3: Pending Approvals
-                    _buildStatCard(
-                      context: context,
-                      title: 'Pending Approvals',
-                      subtitle: 'Workers awaiting verification',
-                      icon: Icons.pending_actions_rounded,
-                      color: const Color(0xFFFF9800),
-                      valueAsync: pendingWorkersAsync.whenData(
-                        (workers) => workers.length.toString(),
-                      ),
-                      badgeText: pendingWorkersAsync.when(
-                        data: (workers) => workers.isNotEmpty
-                            ? '${workers.length} Pending'
-                            : null,
-                        loading: () => null,
-                        error: (_, _) => null,
-                      ),
-                      onTap: () {
-                        ref.read(adminBottomNavIndexProvider.notifier).state = 2;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Stat 4: Active Jobs Today
-                    _buildStatCard(
-                      context: context,
-                      title: 'Active Jobs Today',
-                      subtitle: 'Jobs requested or active today',
-                      icon: Icons.play_circle_filled_rounded,
-                      color: const Color(0xFF4CAF50),
-                      valueAsync: activeJobsTodayAsync.whenData(
-                        (count) => count.toString(),
-                      ),
-                      onTap: () {
-                        ref.read(adminBottomNavIndexProvider.notifier).state = 3;
-                      },
-                    ),
-                    const SizedBox(height: 14),
-
-                    // Stat 5: Total Revenue / Commission Card
-                    _buildStatCard(
-                      context: context,
-                      title: 'Total Revenue / Commission',
-                      subtitle: '20% Admin commission from jobs',
-                      icon: Icons.monetization_on_rounded,
-                      color: const Color(0xFF009688),
-                      valueAsync: totalAdminEarningsAsync.whenData(
-                        (earnings) => 'Rs. ${earnings.toStringAsFixed(0)}',
-                      ),
-                      onTap: () {
-                        _showFinancialBreakdown(
+                isWide
+                    ? GridView.count(
+                        crossAxisCount: 2,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisSpacing: 14,
+                        mainAxisSpacing: 14,
+                        childAspectRatio: 2.8,
+                        children: _buildStatCards(
                           context,
                           ref,
+                          allUsersAsync,
+                          allWorkersAsync,
+                          pendingWorkersAsync,
+                          activeJobsTodayAsync,
                           totalAdminEarningsAsync,
                           totalPlatformVolumeAsync,
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                        ),
+                      )
+                    : Column(
+                        children: _buildStatCards(
+                          context,
+                          ref,
+                          allUsersAsync,
+                          allWorkersAsync,
+                          pendingWorkersAsync,
+                          activeJobsTodayAsync,
+                          totalAdminEarningsAsync,
+                          totalPlatformVolumeAsync,
+                        ).map((e) => Padding(padding: const EdgeInsets.only(bottom: 14), child: e)).toList(),
+                      ),
               ],
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
+  }
+
+  List<Widget> _buildStatCards(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<List<dynamic>> allUsersAsync,
+    AsyncValue<List<dynamic>> allWorkersAsync,
+    AsyncValue<List<dynamic>> pendingWorkersAsync,
+    AsyncValue<int> activeJobsTodayAsync,
+    AsyncValue<double> totalAdminEarningsAsync,
+    AsyncValue<double> totalPlatformVolumeAsync,
+  ) {
+    return [
+      _buildStatCard(
+        context: context,
+        title: 'Total Users',
+        subtitle: 'Registered customer accounts',
+        icon: Icons.people_alt_rounded,
+        color: const Color(0xFF2196F3),
+        valueAsync: allUsersAsync.whenData(
+          (users) => users.length.toString(),
+        ),
+        onTap: () {
+          ref.read(adminBottomNavIndexProvider.notifier).state = 1;
+        },
+      ),
+      _buildStatCard(
+        context: context,
+        title: 'Total Workers',
+        subtitle: 'Registered service providers',
+        icon: Icons.engineering_rounded,
+        color: const Color(0xFF9C27B0),
+        valueAsync: allWorkersAsync.whenData(
+          (workers) => workers.length.toString(),
+        ),
+        onTap: () {
+          ref.read(adminBottomNavIndexProvider.notifier).state = 2;
+        },
+      ),
+      _buildStatCard(
+        context: context,
+        title: 'Pending Approvals',
+        subtitle: 'Workers awaiting verification',
+        icon: Icons.pending_actions_rounded,
+        color: const Color(0xFFFF9800),
+        valueAsync: pendingWorkersAsync.whenData(
+          (workers) => workers.length.toString(),
+        ),
+        badgeText: pendingWorkersAsync.when(
+          data: (workers) => workers.isNotEmpty
+              ? '${workers.length} Pending'
+              : null,
+          loading: () => null,
+          error: (_, _) => null,
+        ),
+        onTap: () {
+          ref.read(adminBottomNavIndexProvider.notifier).state = 2;
+        },
+      ),
+      _buildStatCard(
+        context: context,
+        title: 'Active Jobs Today',
+        subtitle: 'Jobs requested or active today',
+        icon: Icons.play_circle_filled_rounded,
+        color: const Color(0xFF4CAF50),
+        valueAsync: activeJobsTodayAsync.whenData(
+          (count) => count.toString(),
+        ),
+        onTap: () {
+          ref.read(adminBottomNavIndexProvider.notifier).state = 3;
+        },
+      ),
+      _buildStatCard(
+        context: context,
+        title: 'Total Revenue / Commission',
+        subtitle: '20% Admin commission from jobs',
+        icon: Icons.monetization_on_rounded,
+        color: const Color(0xFF009688),
+        valueAsync: totalAdminEarningsAsync.whenData(
+          (earnings) => 'Rs. ${earnings.toStringAsFixed(0)}',
+        ),
+        onTap: () {
+          _showFinancialBreakdown(
+            context,
+            ref,
+            totalAdminEarningsAsync,
+            totalPlatformVolumeAsync,
+          );
+        },
+      ),
+    ];
   }
 
   void _showFinancialBreakdown(
